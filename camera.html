@@ -3,34 +3,70 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Camera Access</title>
+    <title>카메라 테스트</title>
     <style>
         body {
             display: flex;
             flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 0;
             height: 100vh;
+            background-color: #000;
         }
         video {
             width: 100%;
-            max-width: 400px;
-            border: 1px solid #ccc;
-            margin-top: 20px;
+            max-width: 500px;
+            aspect-ratio: 1 / 1;
+            border: none;
+            background-color: #000;
+        }
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        button {
+            padding: 15px;
+            font-size: 16px;
+            border: none;
+            background-color: #fff;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+        }
+        button:active {
+            box-shadow: none;
         }
     </style>
 </head>
 <body>
-    <h1>후면 카메라 테스트</h1>
     <video id="video" autoplay></video>
+
+    <div class="controls">
+        <button id="cameraSwitch">🔄</button>
+        <button id="takePhoto">📸</button>
+    </div>
 
     <script>
         const video = document.getElementById('video');
+        const cameraSwitchButton = document.getElementById('cameraSwitch');
+        const takePhotoButton = document.getElementById('takePhoto');
+        let currentFacingMode = "environment";  // 기본 후면 카메라
 
-        async function startCamera() {
+        async function startCamera(facingMode) {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
-                    video: { facingMode: { exact: "environment" } }
+                    video: {
+                        facingMode: { exact: facingMode },  // 카메라 방향 설정
+                        aspectRatio: { ideal: 1 },  // 1:1 비율
+                        width: { ideal: 720 },
+                        height: { ideal: 720 }
+                    }
                 });
                 video.srcObject = stream;
             } catch (error) {
@@ -38,8 +74,31 @@
             }
         }
 
-        // 페이지가 로드될 때 카메라를 자동으로 켬
-        window.onload = startCamera;
+        function switchCamera() {
+            currentFacingMode = currentFacingMode === "environment" ? "user" : "environment";
+            startCamera(currentFacingMode);
+        }
+
+        function takePhoto() {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // 캡처한 이미지를 데이터 URL로 변환
+            const photoDataURL = canvas.toDataURL('image/png');
+
+            // 이미지 데이터를 URL 파라미터로 전달하며 다음 페이지로 이동
+            window.location.href = `photo.html?image=${encodeURIComponent(photoDataURL)}`;
+        }
+
+        // 버튼 이벤트 핸들러
+        cameraSwitchButton.addEventListener('click', switchCamera);
+        takePhotoButton.addEventListener('click', takePhoto);
+
+        // 페이지 로드 시 카메라 시작 (기본 후면)
+        window.onload = () => startCamera(currentFacingMode);
     </script>
 </body>
 </html>
