@@ -62,10 +62,10 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: { exact: facingMode },  // 카메라 방향 설정
+                        facingMode: facingMode ,  // 카메라 방향 설정
                         aspectRatio: { ideal: 1 },  // 1:1 비율
-                        width: { ideal: 720 },
-                        height: { ideal: 720 }
+                        width: { ideal: 3840 },
+                        height: { ideal: 2160 }
                     }
                 });
                 video.srcObject = stream;
