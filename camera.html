@@ -86,11 +86,16 @@
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // 캡처한 이미지를 데이터 URL로 변환
-            const photoDataURL = canvas.toDataURL('image/png');
-
-            // 이미지 데이터를 URL 파라미터로 전달하며 다음 페이지로 이동
-            window.location.href = `photo.html?image=${encodeURIComponent(photoDataURL)}`;
+            canvas.toBlob(function(blob) {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `photo_${Date.now()}.png`; // 파일 이름 설정
+                document.body.appendChild(a);
+                a.click(); // 다운로드 시작
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url); // URL 객체 메모리 해제
+            }, 'image/png'); // Blob 형식
         }
 
         // 버튼 이벤트 핸들러
