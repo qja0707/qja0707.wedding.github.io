@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Camera Access</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        video {
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>후면 카메라 테스트</h1>
+    <video id="video" autoplay></video>
+
+    <script>
+        const video = document.getElementById('video');
+
+        async function startCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: { exact: "environment" } }
+                });
+                video.srcObject = stream;
+            } catch (error) {
+                alert('카메라에 접근할 수 없습니다: ' + error.message);
+            }
+        }
+
+        // 페이지가 로드될 때 카메라를 자동으로 켬
+        window.onload = startCamera;
+    </script>
+</body>
+</html>
