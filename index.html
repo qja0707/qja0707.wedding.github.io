@@ -1,12 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My GitHub Page</title>
+    <title>Camera Access</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        video {
+            width: 100%;
+            max-width: 400px;
+            border: 1px solid #ccc;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome to My GitHub Page!</h1>
-    <p>This is a simple page hosted on GitHub Pages.</p>
+    <h1>카메라 테스트</h1>
+    <button id="cameraButton">카메라 켜기</button>
+    <video id="video" autoplay></video>
+
+    <script>
+        const cameraButton = document.getElementById('cameraButton');
+        const video = document.getElementById('video');
+
+        cameraButton.addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                video.srcObject = stream;
+            } catch (error) {
+                alert('카메라에 접근할 수 없습니다: ' + error.message);
+            }
+        });
+    </script>
 </body>
 </html>
