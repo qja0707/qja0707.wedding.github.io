@@ -16,11 +16,10 @@
             background-color: #000;
         }
         video {
-            width: 100%;
-            max-width: 500px;
-            aspect-ratio: 1 / 1;
-            border: none;
-            background-color: #000;
+            width: 100%;  /* 비디오 너비를 100%로 설정 */
+            height: auto;  /* 높이를 자동으로 조정 */
+            max-height: 100vh;  /* 화면 높이를 넘어가지 않도록 설정 */
+            object-fit: cover;  /* 비디오의 비율을 유지하면서 커버 */
         }
         .controls {
             position: absolute;
@@ -58,14 +57,28 @@
         const takePhotoButton = document.getElementById('takePhoto');
         let currentFacingMode = "environment";  // 기본 후면 카메라
 
+        async function checkCameraAccess() {
+            try {
+                // 카메라 접근 요청
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                // 비디오 스트림이 정상적으로 시작되면
+                video.srcObject = stream; // 비디오 요소에 스트림을 연결
+                console.log("카메라 접근 허용됨");
+            } catch (error) {
+                // 카메라 접근이 거부되었을 경우
+                console.error("카메라 접근을 허용하지 않았거나 오류 발생:", error);
+                alert('카메라 접근이 필요합니다. 설정에서 카메라 접근을 허용해 주세요.');
+            }
+        }
+
         async function startCamera(facingMode) {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({
                     video: {
-                        facingMode: facingMode ,  // 카메라 방향 설정
+                        facingMode: { exact: facingMode },  // 카메라 방향 설정
+                        width: { ideal: 1920 },  // 4K 해상도 (권장값)
+                        height: { ideal: 1920 },  // 4K 해상도
                         aspectRatio: { ideal: 1 },  // 1:1 비율
-                        width: { ideal: 1920 },
-                        height: { ideal: 1920 }
                     }
                 });
                 video.srcObject = stream;
@@ -86,7 +99,7 @@
             const context = canvas.getContext('2d');
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // 캡처한 이미지를 데이터 URL로 변환
+            // 찍은 사진을 데이터 URL로 변환
             const photoDataURL = canvas.toDataURL('image/png');
 
             // 이미지 데이터를 URL 파라미터로 전달하며 다음 페이지로 이동
@@ -97,8 +110,8 @@
         cameraSwitchButton.addEventListener('click', switchCamera);
         takePhotoButton.addEventListener('click', takePhoto);
 
-        // 페이지 로드 시 카메라 시작 (기본 후면)
-        window.onload = () => startCamera(currentFacingMode);
+        // 페이지 로드 시 카메라 접근 확인
+        window.onload = checkCameraAccess;
     </script>
 </body>
 </html>
